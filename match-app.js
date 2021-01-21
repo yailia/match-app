@@ -8,32 +8,64 @@
     }
   }
 
-  // function getNumber () {
+  const popUp = modalText => {
+    const congratsElem = document.createElement('div')
+    congratsElem.classList.add('modal')
+    const congratsTextElem = document.createElement('h2')
+    congratsTextElem.classList.add('caption')
+    congratsTextElem.textContent = modalText
+    const btnWrpElem = document.createElement('div')
+    btnWrpElem.classList.add('btn__wrp')
+    const yesBtn = document.createElement('button')
+    const noBtn = document.createElement('button')
+    yesBtn.textContent = 'Да'
+    noBtn.textContent = 'Нет'
+    yesBtn.classList.add('btn')
 
-  //   const inputWrpElem = document.createElement('form');
-  //   inputWrpElem.classList.add('input-wrp')
-  //   const inputElem = document.createElement('input');
-  //   inputElem.classList.add('input')
-  //   const buttonElem = document.createElement('button');
-  //   buttonElem.classList.add('input__btn')
-  //   buttonElem.textContent = 'Подтвердить';
-  //   const titleElem = document.createElement('h2')
-  //   titleElem.textContent = 'Введите число карт для игры от 4 до 16'
-  //   titleElem.classList.add('caption')
+    yesBtn.addEventListener('click', () => {
+      startGame();
+    })
+    noBtn.addEventListener('click', cleanContent)
+    noBtn.classList.add('btn')
+    containerElem.append(congratsElem)
+    congratsElem.append(congratsTextElem)
+    congratsElem.append(btnWrpElem)
+    btnWrpElem.append(yesBtn)
+    btnWrpElem.append(noBtn)
+  }
 
-  //   containerElem.append(titleElem)
-  //   containerElem.append(inputWrpElem)
-  //   inputWrpElem.append(inputElem)
-  //   inputWrpElem.append(buttonElem)
+  const getNumber = () => {
 
-  // }
+    const inputWrpElem = document.createElement('form');
+    inputWrpElem.classList.add('input-wrp')
+    const inputElem = document.createElement('input');
+    inputElem.classList.add('input')
+    const buttonElem = document.createElement('button');
+    buttonElem.classList.add('btn')
+    buttonElem.textContent = 'Подтвердить';
+    const titleElem = document.createElement('h2')
+    titleElem.textContent = 'Введите число карт в столбце/строке от 2 до 10'
+    titleElem.classList.add('caption')
 
-  function createNumbersArray (numberOfCards) {
+    containerElem.append(titleElem)
+    containerElem.append(inputWrpElem)
+    inputWrpElem.append(inputElem)
+    inputWrpElem.append(buttonElem)
+    inputElem.focus();
+
+    return {
+      inputWrpElem,
+      inputElem
+    }
+
+  }
+
+  const createNumbersArray = numberOfCards => {
+    cleanContent();
     const cardsArray = [];
     const numbersArray = [];
 
     for (let i = 0; i < numberOfCards; i++) {
-        numbersArray.push(i+1)
         numbersArray.push(i+1)
     }
     for (let i = 0; i < numbersArray.length; i++){
@@ -45,8 +77,8 @@
     }
 
     function shuffle(arr){
-      var j, temp;
-      for(var i = arr.length - 1; i > 0; i--){
+      let j, temp;
+      for(let i = arr.length - 1; i > 0; i--){
         j = Math.floor(Math.random()*(i + 1));
         temp = arr[j];
         arr[j] = arr[i];
@@ -61,7 +93,33 @@
     return shuffledArray
   }
 
-  function createGameField (cardsArray) {
+  const createGameField = cardsArray => {
+    const timer = () => {
+      let  min = 60;
+      const timerText = document.createElement('div')
+      timerText.classList.add('timer')
+
+      const countdown = () => {
+        if (winArray.length != cardsArray.length){
+          if (min > 0){
+            min --
+            return timerText.textContent = 'Осталось времени: ' + min + 'сек',
+            containerElem.prepend(timerText)
+            }
+            else
+            min = 60;
+            cleanContent();
+            return popUp('Время вышло. Хотите сыграть еще?'),
+            clearInterval(intervalID);
+          }
+
+          else clearInterval(intervalID);
+        }
+
+
+      let intervalID = setInterval(countdown, 1000);
+    }
+    timer();
 
     for(let i = 0; i < cardsArray.length; i++) {
       let cardObj = cardsArray[i];
@@ -75,11 +133,7 @@
       cardContentElem.textContent = cardObj.content
       containerElem.append(cardElem)
       cardElem.append(cardContentElem)
-
-
-
       cardElem.addEventListener('click', () => {
-
           if (openCardsArray.length === 0) {
             cardElem.classList.remove('hide')
             openCardsArray.push(cardObj)
@@ -99,39 +153,11 @@
                 secondWinCard.setAttribute('disabled', 'disabled')
                 winArray.push(firstWinCard);
                 winArray.push(secondWinCard);
-                console.log(winArray)
                 openCardsArray.length = 0
 
-                if (winArray.length === 16) {
-                  openCardsArray.length = 0
-                  winArray.length = 0
+                if (winArray.length === cardsArray.length) {
                   cleanContent();
-
-                  const congratsElem = document.createElement('div')
-                  congratsElem.classList.add('modal')
-                  const congratsTextElem = document.createElement('h2')
-                  congratsTextElem.classList.add('caption')
-                  congratsTextElem.textContent = 'Вы выиграли. Хотите сыграть еще?'
-                  const btnWrpElem = document.createElement('div')
-                  btnWrpElem.classList.add('btn__wrp')
-                  const yesBtn = document.createElement('button')
-                  const noBtn = document.createElement('button')
-                  yesBtn.textContent = 'Да'
-                  noBtn.textContent = 'Нет'
-                  yesBtn.classList.add('btn')
-
-                  yesBtn.addEventListener('click', () => {
-                    startGame();
-                  })
-                  noBtn.addEventListener('click', cleanContent)
-                  noBtn.classList.add('btn')
-                  containerElem.append(congratsElem)
-                  congratsElem.append(congratsTextElem)
-                  congratsElem.append(btnWrpElem)
-                  btnWrpElem.append(yesBtn)
-                  btnWrpElem.append(noBtn)
-
-
+                  popUp('Вы выиграли. Хотите сыграть еще?')
                 }
 
 
@@ -145,28 +171,49 @@
                   notWinSecond.classList.add('hide')
                   return
                 },500)
-
           }
-
           }
-
     })
-
-
-
     }
-
-
   }
 
-function startGame () {
-  cleanContent()
-  let cards = createNumbersArray(8);
-  createGameField(cards)
+const startGame = () => {
+    cleanContent();
+    openCardsArray.length = 0
+    winArray.length = 0
+
+  let makeNumber = getNumber();
+
+  makeNumber.inputWrpElem.addEventListener('submit', (e) => {
+    e.preventDefault;
+    const inputInt = makeNumber.inputElem.value * 1
+    const numberOfCards = inputInt * inputInt
+    console.log(numberOfCards)
+
+    if (!parseInt(inputInt)) {
+      alert('Введите число')
+      return
+    }
+
+    if (inputInt % 2 != 0) {
+     alert('Число должно быть четным')
+     return startGame();
+   }
+
+    if (inputInt < 1) {
+      alert('Введите число, больше 1')
+      return startGame();
+    }
+
+    if (inputInt > 11) {
+      alert('Введите число, меньше 10')
+      return startGame();
+    }
+    let cards = createNumbersArray(numberOfCards)
+    createGameField(cards)
+  })
 }
 
 startGame();
-
-
 
 })();
